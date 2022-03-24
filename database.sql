@@ -1,11 +1,19 @@
 CREATE DATABASE order_database;
 
+-- create user order db
+CREATE TABLE user_order_data(
+    orderID VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    orderStatus VARCHAR(10) NOT NULL
+);
+
 -- create order db
 CREATE TABLE order_data(
-    orderID SERIAL PRIMARY KEY,
+    orderID VARCHAR(255),
     itemID SERIAL NOT NULL,
     quantity INT NOT NULL,
-    PricePerItem DOUBLE PRECISION NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    OrderStatus VARCHAR(10) NOT NULL
+    pricePerItem DOUBLE PRECISION NOT NULL,
+    PRIMARY KEY (orderID, itemID),
+    FOREIGN KEY (orderID) REFERENCES user_order_data(orderID)
 );

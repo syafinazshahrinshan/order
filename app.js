@@ -11,27 +11,85 @@ app.use(express.json()) // -> req.body
 // ROUTES 
 
 //GET
-app.get("/order", async(req,res)=>{
+app.get("/order/getAll", async(req,res)=>{
     try {
-        const orderDetails = await pool.query("SELECT * FROM order_data")
-        res.json(orderDetails.rows)
-        console.log('success')
+        let fullOrderDetails = [];
+        const orders = await pool.query(`SELECT * FROM user_order_data`)
+        for (order of orders.rows) {
+            let temp = order;
+            let result =  await pool.query(`SELECT * FROM order_data 
+                Where orderID = $1`, [temp.orderid]);
+            temp.details = result.rows
+            fullOrderDetails.push(temp);
+        }
 
+        res.json(fullOrderDetails)
     } catch (error) {
         console.error(error.message)
+        res.json(error.message)
     }
 })
 
-// // CREATE
-app.post('/order', async(req,res)=>{
+//GET BY User ID
+app.get("/order/userid/:userId", async(req,res)=>{
     try {
-        const {orderID, itemID, quantity, PricePerItem, CreatedAt, OrderStatus} = req.body
-        const newOrder = await pool.query("INSERT INTO order_data(orderID, itemID, quantity, PricePerItem, CreatedAt, OrderStatus) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",[orderID, itemID, quantity, PricePerItem, CreatedAt, OrderStatus])
+        let fullOrderDetails = [];
+        const{userId}=req.params //WHERE
+
+        const orders = await pool.query(`SELECT * FROM user_order_data 
+        where user_id = $1`, [userId])
+        for (order of orders.rows) {
+            let temp = order;
+            let result =  await pool.query(`SELECT * FROM order_data 
+                Where orderID = $1`, [temp.orderid]);
+            temp.details = result.rows
+            fullOrderDetails.push(temp);
+        }
+
+        res.json(fullOrderDetails)
+    } catch (error) {
+        console.error(error.message)
+        res.json(error.message)
+    }
+})
+
+//GET BY order ID
+app.get("/order/orderid/:orderID", async(req,res)=>{
+    try {
+        let fullOrderDetails = [];
+        const{orderID}=req.params //WHERE
+
+        const orders = await pool.query(`SELECT * FROM user_order_data 
+        where orderid = $1`, [orderID])
+        for (order of orders.rows) {
+            let temp = order;
+            let result =  await pool.query(`SELECT * FROM order_data 
+                Where orderID = $1`, [orderID]);
+            temp.details = result.rows
+            fullOrderDetails.push(temp);
+        }
+
+        res.json(fullOrderDetails)
+    } catch (error) {
+        console.error(error.message)
+        res.json(error.message)
+    }
+})
+
+//CREATE
+app.post('/order/create', async(req,res)=>{
+    try {
         
+        const {id, userId, items} = req.body
+        const newOrder = await pool.query("INSERT INTO user_order_data(orderID, user_id, orderStatus) VALUES ($1,$2,$3) RETURNING *",[id, userId, "Pending"])
+        for (item of items){
+            await pool.query("INSERT INTO order_data(orderID, itemID, quantity, pricePerItem) VALUES ($1,$2,$3,$4) RETURNING *",[id, item.itemID, item.quantity, item.pricePerItem])
+        }
         res.json(newOrder)
         console.log('Order created')
     } catch (error) {
         console.error(error.message)
+        res.json(error.message)
     }
 })
 
@@ -39,28 +97,16 @@ app.post('/order', async(req,res)=>{
 app.put("/order/:orderID",async(req,res)=>{
     try {
         const{orderID}=req.params //WHERE
-        const{OrderStatus} = req.body // SET
+        const{orderStatus} = req.body // SET
 
-        const updateOrder= await pool.query("UPDATE order_data SET OrderStatus = $1 WHERE orderID=$2", [OrderStatus,orderID])
+        const updateOrder= await pool.query("UPDATE user_order_data SET OrderStatus = $1 WHERE orderID=$2", [orderStatus,orderID])
         
         console.log("Update Successful!")
         res.json("Update Successful!")
 
     } catch (error) {
         console.error(error.message)
-    }
-})
-
-// //DELETE
-app.delete("/order/:orderID", async(req,res)=>{
-    try {
-        const{orderID}=req.params
-        const deleteOrder = await pool.query("DELETE FROM order_data WHERE orderID=$1",[orderID])
-
-        res.json("Product was deleted!")
-
-    } catch (error) {
-        console.error(error.message)
+        res.json(error.message)
     }
 })
 
