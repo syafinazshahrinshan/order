@@ -81,7 +81,7 @@ app.post('/order/create', async(req,res)=>{
     try {
         
         const {id, userId, items} = req.body
-        const newOrder = await pool.query("INSERT INTO user_order_data(orderID, user_id, orderStatus) VALUES ($1,$2,$3) RETURNING *",[id, userId, "Pending"])
+        const newOrder = await pool.query("INSERT INTO user_order_data(orderID, user_id, orderStatus) VALUES ($1,$2,$3) RETURNING *",[id, userId, "Incomplete"])
         for (item of items){
             await pool.query("INSERT INTO order_data(orderID, itemID, quantity, pricePerItem) VALUES ($1,$2,$3,$4) RETURNING *",[id, item.itemID, item.quantity, item.pricePerItem])
         }
