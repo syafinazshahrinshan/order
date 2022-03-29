@@ -65,7 +65,7 @@ app.get("/order/orderid/:orderID", async(req,res)=>{
             let temp = order;
             let result =  await pool.query(`SELECT * FROM order_data 
                 Where orderID = $1`, [orderID]);
-            temp.details = result.rows
+            temp.details = result.rows[0]
             fullOrderDetails.push(temp);
         }
 
