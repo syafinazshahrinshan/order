@@ -97,6 +97,7 @@ app.post('/order/create', async(req,res)=>{
 app.put("/order/:orderID",async(req,res)=>{
     try {
         const{orderID}=req.params //WHERE
+        console.log(req.body)
         const{orderStatus} = req.body // SET
         console.log(orderID)
         console.log(orderStatus)
