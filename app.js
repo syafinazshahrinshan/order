@@ -65,11 +65,11 @@ app.get("/order/orderid/:orderID", async(req,res)=>{
             let temp = order;
             let result =  await pool.query(`SELECT * FROM order_data 
                 Where orderID = $1`, [orderID]);
-            temp.details = result.rows[0]
+            temp.details = result.rows
             fullOrderDetails.push(temp);
         }
 
-        res.json(fullOrderDetails)
+        res.json(fullOrderDetails[0])
     } catch (error) {
         console.error(error.message)
         res.json(error.message)
