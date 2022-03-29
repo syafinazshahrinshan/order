@@ -98,7 +98,8 @@ app.put("/order/:orderID",async(req,res)=>{
     try {
         const{orderID}=req.params //WHERE
         const{orderStatus} = req.body // SET
-
+        console.log(orderID)
+        console.log(orderStatus)
         const updateOrder= await pool.query("UPDATE user_order_data SET orderstatus = $1 WHERE orderid=$2", [orderStatus,orderID])
         
         console.log("Update Successful!")
