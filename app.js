@@ -97,10 +97,7 @@ app.post('/order/create', async(req,res)=>{
 app.put("/order/:orderID",async(req,res)=>{
     try {
         const{orderID}=req.params //WHERE
-        console.log(req.body)
         const{orderStatus} = req.body // SET
-        console.log(orderID)
-        console.log(orderStatus)
         const updateOrder= await pool.query("UPDATE user_order_data SET orderstatus = $1 WHERE orderid=$2", [orderStatus,orderID])
         
         console.log("Update Successful!")
